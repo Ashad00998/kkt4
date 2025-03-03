@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Slider</title>
+</head>
+<body>
+
+<script>
+    // Создание контейнера для слайдера
+    const sliderContainer = document.createElement('div');
+    sliderContainer.id = 'slider';
+    sliderContainer.style.width = '600px';
+    sliderContainer.style.height = '200px';
+    sliderContainer.style.position = 'relative';
+    sliderContainer.style.marginTop = '100px';
+
+    // Функция для создания треков слайдера
+    function createTrack(color, top) {
+        const track = document.createElement('div');
+        track.className = 'slider-track';
+        track.style.width = '100%';
+        track.style.height = '4px';
+        track.style.backgroundColor = color;
+        track.style.position = 'absolute';
+        track.style.top = `${top}px`;
+        return track;
+    }
+
+    // Функция для создания ползунков слайдера
+    function createThumb(top) {
+        const thumb = document.createElement('div');
+        thumb.className = 'slider-thumb';
+        thumb.style.width = '20px';
+        thumb.style.height = '20px';
+        thumb.style.backgroundColor = '#007bff';
+        thumb.style.borderRadius = '50%';
+        thumb.style.position = 'absolute';
+        thumb.style.top = `${top - 8}px`; // Корректировка для центрирования
+        thumb.style.transform = 'translate(-50%, -50%)';
+        thumb.style.cursor = 'pointer';
+        return thumb;
+    }
+
+    // Функция для создания отображения значения слайдера
+    function createValue(top) {
+        const value = document.createElement('div');
+        value.className = 'slider-value';
+        value.style.position = 'absolute';
+        value.style.top = `${top - 30}px`;
+        value.style.left = '50%';
+        value.style.transform = 'translateX(-50%)';
+        value.style.fontSize = '16px';
+        value.style.fontWeight = 'bold';
+        value.textContent = '0';
+        return value;
+    }
+
+    // Массив с информацией о треках
+    const tracks = [
+        { color: '#ff6f61', top: 20 },
+        { color: '#6b5b95', top: 80 },
+        { color: '#88b04b', top: 140 }
+    ];
+
+    const thumbs = [];
+    const values = [];
+
+    // Создание треков, ползунков и значений для каждого трека
+    tracks.forEach((trackInfo, index) => {
+        const track = createTrack(trackInfo.color, trackInfo.top);
+        const thumb = createThumb(trackInfo.top);
+        const value = createValue(trackInfo.top);
+
+        sliderContainer.appendChild(track);
+        sliderContainer.appendChild(thumb);
+        sliderContainer.appendChild(value);
+
+        thumbs.push(thumb);
+        values.push(value);
+
+        let isDragging = false;
+
+        // Функция для обновления значения ползунка
+        function updateValue(x, index) {
+            const rect = sliderContainer.getBoundingClientRect();
+            const min = 0;
+            const max = 100;
+            const newValue = Math.round(((x - rect.left) / rect.width) * (max - min) + min);
+            if (newValue >= min && newValue <= max) {
+                values[index].textContent = newValue;
+                thumbs[index].style.left = `${(newValue - min) / (max - min) * 100}%`;
+            }
+        }
+
+        // Обработка события mousedown
+        thumb.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            updateValue(e.clientX, index);
+        });
+
+        // Обработка события mousemove
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                updateValue(e.clientX, index);
+            }
+        });
+
+        // Обработка события mouseup
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Обработка события click
+        thumb.addEventListener('click', () => {
+            console.log(`Thumb ${index + 1} clicked`);
+        });
+
+        // Обработка события dblclick
+        thumb.addEventListener('dblclick', () => {
+            console.log(`Thumb ${index + 1} double clicked`);
+        });
+
+        // Обработка события contextmenu
+        thumb.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            console.log(`Thumb ${index + 1} right clicked`);
+        });
+    });
+
+    // Добавление контейнера слайдера в тело документа
+    document.body.appendChild(sliderContainer);
+</script>
+
+</body>
+</html>
